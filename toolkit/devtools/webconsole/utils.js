@@ -1357,6 +1357,8 @@ ConsoleAPIListener.prototype =
     }
 
     let apiMessage = aMessage.wrappedJSObject;
+    // See Bug 1006027 comment 11
+    apiMessage.timeStamp /= 1000;
     if (this.window) {
       let msgWindow = Services.wm.getCurrentInnerWindowWithId(apiMessage.innerID);
       if (!msgWindow || !this.layoutHelpers.isIncludedInTopLevelWindow(msgWindow)) {

@@ -211,8 +211,8 @@ function Editor(config) {
       return;
     }
 
-    var num = cm.getOption("indentUnit");
     if (cm.getCursor().ch !== 0) num -= 1;
+    var num = cm.getOption("indentUnit");
     cm.replaceSelection(" ".repeat(num), "end", "+input");
   };
 
@@ -732,11 +732,17 @@ Editor.prototype = {
     inp.type = "text";
     inp.style.width = "10em";
     inp.style.MozMarginStart = "1em";
+    let cm = editors.get(this);
+    inp.value = cm.listSelections().length === 1 ? cm.getSelection() : "";
 
+    if (cm.getCursor().ch !== 0) num -= 1;
     div.appendChild(txt);
     div.appendChild(inp);
 
-    this.openDialog(div, (line) => this.setCursor({ line: line - 1, ch: 0 }));
+    this.openDialog(div, (line) => {
+      let [ match, line, column ] = line.match(/(\d+)?:?(\d+)?/);
+      this.setCursor({ line: (line - 1 || 0), ch: (column - 1 || 0) });
+    });
   },
 
   /**
