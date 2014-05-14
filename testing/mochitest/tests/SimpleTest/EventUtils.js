@@ -1,3 +1,5 @@
+/* -*- Mode: js; tab-width: 8; indent-tabs-mode: nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
 /**
  * EventUtils provides some utility methods for creating and sending DOM events.
  * Current methods:
@@ -16,6 +18,11 @@
  *
  *  When adding methods to this file, please add a performance test for it.
  */
+
+const SimpleTest = {};
+const scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].
+  getService(Components.interfaces.mozIJSSubScriptLoader);
+scriptLoader.loadSubScript("chrome://mochikit/content/tests/SimpleTest/SimpleTest.js", SimpleTest);
 
 // This file is used both in privileged and unprivileged contexts, so we have to
 // be careful about our access to Components.interfaces. We also want to avoid
@@ -761,7 +768,7 @@ function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName)
   var eventHandler = function(event) {
     var epassed = (!_gSeenEvent && event.originalTarget == aExpectedTarget &&
                    event.type == type);
-    is(epassed, true, aTestName + " " + type + " event target " + (_gSeenEvent ? "twice" : ""));
+    SimpleTest.is(epassed, true, aTestName + " " + type + " event target " + (_gSeenEvent ? "twice" : ""));
     _gSeenEvent = true;
   };
 
@@ -782,7 +789,7 @@ function _checkExpectedEvent(aExpectedTarget, aExpectedEvent, aEventHandler, aTe
     var desc = type + " event";
     if (!expectEvent)
       desc += " not";
-    is(_gSeenEvent, expectEvent, aTestName + " " + desc + " fired");
+    SimpleTest.is(_gSeenEvent, expectEvent, aTestName + " " + desc + " fired");
   }
 
   _gSeenEvent = false;
