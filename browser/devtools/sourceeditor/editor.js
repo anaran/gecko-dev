@@ -750,13 +750,25 @@ Editor.prototype = {
     let div = doc.createElement("div");
     let inp = doc.createElement("input");
     let txt = doc.createTextNode(L10N.GetStringFromName("gotoLineCmd.promptTitle"));
-
     inp.type = "text";
     inp.style.width = "10em";
     inp.style.MozMarginStart = "1em";
 
     div.appendChild(txt);
     div.appendChild(inp);
+    if (!this.hasMultipleSelections()) {
+      let cm = editors.get(this);
+      let sel = cm.getSelection();
+      // Scratchpad inserts and selects a comment after an error happens:
+      // "@Scratchpad/1:10:2". Parse this to get the line and column.
+      // In the string above this is line 10, column 2.
+      let match = sel.match(RE_SCRATCHPAD_ERROR);
+      if (match) {
+        let [ , line, column ] = match;
+        inp.value = column ? line + ":" + column : line;
+        inp.selectionStart = inp.selectionEnd = inp.value.length;
+      }
+    }
 
     if (!this.hasMultipleSelections()) {
       let cm = editors.get(this);
