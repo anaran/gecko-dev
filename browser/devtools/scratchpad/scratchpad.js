@@ -660,6 +660,7 @@ var Scratchpad = {
   prettyPrint: function SP_prettyPrint() {
     const uglyText = this.getText();
     const tabsize = Services.prefs.getIntPref("devtools.editor.tabsize");
+    const quotechar = Services.prefs.getCharPref("devtools.editor.quotechar");
     const id = Math.random();
     const deferred = promise.defer();
 
@@ -684,6 +685,7 @@ var Scratchpad = {
       id: id,
       url: "(scratchpad)",
       indent: tabsize,
+      quotechar: quotechar,
       source: uglyText
     });
 

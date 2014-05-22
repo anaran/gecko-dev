@@ -1425,12 +1425,14 @@ pref("devtools.eyedropper.zoom", 6);
 // - expandtab: expand Tab characters to spaces.
 // - keymap: which keymap to use (can be 'default', 'emacs' or 'vim')
 // - autoclosebrackets: whether to permit automatic bracket/quote closing.
-// - detectindentation: whether to detect the indentation from the file
+// - detectindentation: whether to detect the indentation from the file.
+// - quotechar: which string quote character to use, ' or ".
 pref("devtools.editor.tabsize", 2);
 pref("devtools.editor.expandtab", true);
 pref("devtools.editor.keymap", "default");
 pref("devtools.editor.autoclosebrackets", true);
 pref("devtools.editor.detectindentation", true);
+pref("devtools.editor.quotechar", "'");
 
 // Enable the Font Inspector
 pref("devtools.fontinspector.enabled", true);
