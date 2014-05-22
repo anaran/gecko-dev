@@ -488,43 +488,6 @@
   }
 
   /**
-   * Make sure that we output the escaped character combination inside string literals
-   * instead of various problematic characters.
-   */
-  var sanitize = (function () {
-    var escapeCharacters = {
-      // Backslash
-      "\\": "\\\\",
-      // Newlines
-      "\n": "\\n",
-      // Carriage return
-      "\r": "\\r",
-      // Tab
-      "\t": "\\t",
-      // Vertical tab
-      "\v": "\\v",
-      // Form feed
-      "\f": "\\f",
-      // Null character
-      "\0": "\\0",
-      // Single quotes
-      "'": "\\'"
-    };
-
-    var regExpString = "("
-      + Object.keys(escapeCharacters)
-              .map(function (c) { return escapeCharacters[c]; })
-              .join("|")
-      + ")";
-    var escapeCharactersRegExp = new RegExp(regExpString, "g");
-
-    return function(str) {
-      return str.replace(escapeCharactersRegExp, function (_, c) {
-        return escapeCharacters[c];
-      });
-    }
-  }());
-  /**
    * Add the given token to the pretty printed results.
    *
    * @param Object token
@@ -534,9 +497,9 @@
    * @param Object options
    *        The options object.
    */
-  function addToken(token, write, options) {
+  function addToken(token, write, sanitize, options) {
     if (token.type.type == "string") {
-      write("'" + sanitize(token.value) + "'",
+      write(options.quotechar + sanitize(token.value) + options.quotechar,
             token.startLoc.line,
             token.startLoc.column);
     } else {
@@ -649,6 +612,44 @@
 
     // We will accumulate the pretty printed code in this SourceNode.
     var result = new SourceNode();
+
+  /**
+   * Make sure that we output the escaped character combination inside string literals
+   * instead of various problematic characters.
+   */
+  var sanitize = (function (quotechar) {
+    var escapeCharacters = {
+      // Backslash
+      "\\": "\\\\",
+      // Newlines
+      "\n": "\\n",
+      // Carriage return
+      "\r": "\\r",
+      // Tab
+      "\t": "\\t",
+      // Vertical tab
+      "\v": "\\v",
+      // Form feed
+      "\f": "\\f",
+      // Null character
+      "\0": "\\0",
+    };
+    // Single or double quotes
+    escapeCharacters[quotechar] = "\\" + quotechar;
+
+    var regExpString = "("
+      + Object.keys(escapeCharacters)
+              .map(function (c) { return escapeCharacters[c]; })
+              .join("|")
+      + ")";
+    var escapeCharactersRegExp = new RegExp(regExpString, "g");
+
+    return function(str) {
+      return str.replace(escapeCharactersRegExp, function (_, c) {
+        return escapeCharacters[c];
+      });
+    }
+  }(options.quotechar));
 
     /**
      * Write a pretty printed string to the result SourceNode.
@@ -795,7 +796,7 @@
 
       prependWhiteSpace(token, lastToken, addedNewline, write, options,
                         indentLevel, stack);
-      addToken(token, write, options);
+      addToken(token, write, sanitize, options);
       addedNewline = appendNewline(token, write, stack);
 
       if (shouldStackPop(token, stack)) {

@@ -32,11 +32,12 @@ importScripts("resource://gre/modules/devtools/source-map.js");
 importScripts("resource://gre/modules/devtools/pretty-fast.js");
 
 self.onmessage = (event) => {
-  const { data: { id, url, indent, source } } = event;
+  const { data: { id, url, indent, quotechar, source } } = event;
   try {
     const prettified = prettyFast(source, {
       url: url,
-      indent: " ".repeat(indent)
+      indent: " ".repeat(indent),
+      quotechar: quotechar
     });
 
     self.postMessage({
