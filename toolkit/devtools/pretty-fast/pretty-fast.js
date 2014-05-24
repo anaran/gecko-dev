@@ -557,7 +557,8 @@
    * level.
    */
   function incrementsIndent(token) {
-    return token.type.type == "{" || token.isArrayLiteral
+    return token.type.type == "{"
+      || token.isArrayLiteral
       || token.type.keyword == "switch";
   }
 
@@ -731,6 +732,7 @@
     //   - "[\n"
     //   - "do"
     //   - "?"
+    //   - "switch"
     //   - "case"
     //   - "default"
     //
@@ -799,7 +801,8 @@
 
       if (decrementsIndent(ttt, stack)) {
         indentLevel--;
-        if (ttt == "}" && stack.length > 1
+        if (ttt == "}"
+            && stack.length > 1
             && stack[stack.length - 2] == "switch") {
           indentLevel--;
         }
@@ -807,8 +810,10 @@
 
       prependWhiteSpace(token, lastToken, addedNewline, write, options,
                         indentLevel, stack);
-      addToken(token, write, sanitize, options);
-      addedNewline = appendNewline(token, write, stack);
+      addToken(token, write, options);
+      if (commentQueue.length == 0 || !commentQueue[0].trailing) {
+        addedNewline = appendNewline(token, write, stack);
+      }
 
       if (shouldStackPop(token, stack)) {
         stack.pop();
@@ -849,10 +854,9 @@
         }
         for (var i = 0, n = commentQueue.length; i < n; i++) {
           var comment = commentQueue[i];
-          addComment(write, commentQueue[0].trailing
-                     ? 0 : indentLevel, options, comment.block,
-                     comment.text,
-                     comment.line, comment.column);
+          var commentIndentLevel = commentQueue[i].trailing ? 0 : indentLevel;
+          addComment(write, commentIndentLevel, options, comment.block,
+                     comment.text, comment.line, comment.column);
         }
         addedNewline = true;
         commentQueue.splice(0, commentQueue.length);
