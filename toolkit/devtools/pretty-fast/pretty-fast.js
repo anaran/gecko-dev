@@ -275,13 +275,15 @@
    *        The function to write to the pretty printed results.
    * @param Array stack
    *        The stack of open parens/curlies/brackets/etc.
+   * @param Boolean trailing
+   *        Indicate a trailing comment to omit newline.
    *
    * @returns Boolean
    *          Returns true if we added a newline to result, false in all other
    *          cases.
    */
-  function appendNewline(token, write, stack) {
-    if (isLineDelimiter(token, stack)) {
+  function appendNewline(token, write, stack, trailing) {
+    if (isLineDelimiter(token, stack) && !trailing) {
       write("\n", token.startLoc.line, token.startLoc.column);
       return true;
     }
@@ -761,7 +763,8 @@
             block: block,
             text: text,
             line: startLoc.line,
-            column: startLoc.column
+            column: startLoc.column,
+            trailing: lastToken.endLoc.line == startLoc.line
           });
         } else {
           addComment(write, indentLevel, options, block, text, startLoc.line,
@@ -804,9 +807,10 @@
 
       prependWhiteSpace(token, lastToken, addedNewline, write, options,
                         indentLevel, stack);
-      addToken(token, write, sanitize, options);
-      addedNewline = appendNewline(token, write, stack);
-
+      addToken(token, write, options);
+      addedNewline = appendNewline(token, write, stack,
+                                   commentQueue.length &&
+                                   commentQueue[0].trailing);
       if (shouldStackPop(token, stack)) {
         stack.pop();
         if (token == "}" && stack.length
@@ -838,12 +842,17 @@
 
       // Apply all the comments that have been queued up.
       if (commentQueue.length) {
-        if (!addedNewline) {
+        if (!addedNewline && !commentQueue[0].trailing) {
           write("\n");
+        }
+        if (commentQueue[0].trailing) {
+          write(" ");
         }
         for (var i = 0, n = commentQueue.length; i < n; i++) {
           var comment = commentQueue[i];
-          addComment(write, indentLevel, options, comment.block, comment.text,
+          addComment(write, commentQueue[0].trailing
+                     ? 0 : indentLevel, options, comment.block,
+                     comment.text,
                      comment.line, comment.column);
         }
         addedNewline = true;
