@@ -1,5 +1,5 @@
 // |reftest| skip-if(!xulRuntime.shell)
-/* -*- Mode: js2; tab-width: 40; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: js; tab-width: 40; indent-tabs-mode: nil; js-indent-level: 2 -*- */
 /*
  * Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/licenses/publicdomain/
