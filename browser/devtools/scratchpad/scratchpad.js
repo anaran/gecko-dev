@@ -1552,6 +1552,14 @@ var Scratchpad = {
            getInterface(Ci.nsIDOMWindowUtils).currentInnerWindowID;
   },
 
+  updateStatusBar: function SP_updateStatusBar(aEventType)
+  {
+    var statusBarField = document.getElementById("statusbar-line-col");
+    let { line, ch } = this.editor.getCursor();
+    statusBarField.textContent = this.strings.formatStringFromName(
+      "scratchpad.statusBarLineCol", [ line + 1, ch + 1], 2);
+  },
+
   /**
    * The Scratchpad window load event handler. This method
    * initializes the Scratchpad window and source editor.
@@ -1614,6 +1622,9 @@ var Scratchpad = {
       var lines = initialText.split("\n");
 
       this.editor.on("change", this._onChanged);
+      // Keep a reference to the bound version for use in onUnload.
+      this.updateStatusBar = Scratchpad.updateStatusBar.bind(this);
+      this.editor.on("cursorActivity", this.updateStatusBar);
       let okstring = this.strings.GetStringFromName("selfxss.okstring");
       let msg = this.strings.formatStringFromName("selfxss.msg", [okstring], 1);
       this._onPaste = WebConsoleUtils.pasteHandlerGen(this.editor.container.contentDocument.body,
@@ -1699,6 +1710,7 @@ var Scratchpad = {
       this._onPaste = null;
     }
     this.editor.off("change", this._onChanged);
+    this.editor.off("cursorActivity", this.updateStatusBar);
     this.editor.destroy();
     this.editor = null;
 
